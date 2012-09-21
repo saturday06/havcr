@@ -1,0 +1,7 @@
+*~
+.*~
+vendor
+cabal-dev
+dist
+TAGS
+sources.txt
