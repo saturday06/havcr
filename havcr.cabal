@@ -54,19 +54,27 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends: base
+                 , text
+                 , network
+                 , HTTP
                  , pipes >= 2.3.0
                  , yaml
+                 , unordered-containers
 
 test-suite test-havcr
   type:          exitcode-stdio-1.0
   main-is:       HAVCRTests.hs
   build-depends: havcr
                  , base
+                 , text
+                 , network
+                 , HTTP
                  , HUnit
                  , test-framework
                  , test-framework-hunit
                  , pipes >= 2.3.0
                  , yaml
+                 , unordered-containers
   hs-source-dirs: test
 
 source-repository head
