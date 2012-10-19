@@ -44,10 +44,6 @@ mkHeaders (Object hs) = Prelude.concat $ Prelude.map hNameToHdrs $ toList hs
     where hNameToHdrs (k, Array vs) = Prelude.map (hNameToHdr k) (V.toList vs)
           hNameToHdr k (String v) = mkHeader (fromJust $ Prelude.lookup (unpack k) headerMap) (unpack v)
 
-mkHeaders2 :: (Text, [String]) -> [Header]
-mkHeaders2 (k, hs) = Prelude.map hNameToHdr hs
-    where hNameToHdr = mkHeader (fromJust $ Prelude.lookup (unpack k) headerMap)
-
 --------------------------------------
 
 instance ToJSON URI where
