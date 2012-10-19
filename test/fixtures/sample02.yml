@@ -1,0 +1,11 @@
+method: post
+uri: http://example.com/result?a=true&b=0
+body: "HELLO"
+headers: 
+  Content-Type: 
+  - application/x-www-form-urlencoded
+  Accept: 
+  - "*/*"
+  User-Agent: 
+  - Ruby
+  - Haskell
