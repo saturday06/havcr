@@ -54,6 +54,7 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends: base
+                 , vector
                  , text
                  , network
                  , HTTP
@@ -65,6 +66,7 @@ test-suite test-havcr
   type:          exitcode-stdio-1.0
   main-is:       HAVCRTests.hs
   build-depends: havcr
+                 , vector
                  , base
                  , text
                  , network
