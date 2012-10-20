@@ -17,7 +17,7 @@ instance FromJSON URI where
     parseJSON _ = fail "could not parse"
 
 instance FromJSON RequestMethod where
-    parseJSON (String m) = pure GET -- TODO
+    parseJSON (String m) = pure $ Custom (unpack $ toUpper m) -- TODO
                                     -- Y U NO EXPORT "rqMethodMap"???
                                     -- pure $ Prelude.lookup (unpack m) rqMethodMap
     parseJSON _ = fail "could not parse"
@@ -50,7 +50,8 @@ instance ToJSON URI where
     toJSON uri = String $ pack $ uriToString id uri ""
 
 instance ToJSON RequestMethod where
-    toJSON meth = String $ pack $ show meth
+    toJSON meth = String $ pack $ show meth -- TODO
+                                    -- Y U NO EXPORT "rqMethodMap"???
 
 instance ToJSON Header where -- TODO
     toJSON (Header hName hValue) = object []
