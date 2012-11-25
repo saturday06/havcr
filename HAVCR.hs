@@ -36,12 +36,12 @@ instance FromJSON r => FromJSON (Request r) where
     parseJSON (Object v) = Request <$>
                            v .: "uri" <*>
                            v .: "method" <*>
-                           (fmap mkHeaders $ v .: "headers") <*>
+                           (fmap toHeaders $ v .: "headers") <*>
                            v .: "body"
     parseJSON _ = fail "could not parse"
 
-mkHeaders :: Value -> [Header]
-mkHeaders (Object hs) = concat $ map hNameToHdrs $ toList hs
+toHeaders :: Value -> [Header]
+toHeaders (Object hs) = concat $ map hNameToHdrs $ toList hs
     where hNameToHdrs (k, Array vs) = map (hNameToHdr k) (V.toList vs)
           hNameToHdr k (String v) = mkHeader (fromJust $ lookup (T.unpack k) headerMap) (T.unpack v)
 
@@ -61,11 +61,11 @@ instance ToJSON RequestMethod where
 
 instance ToJSON r => ToJSON (Request r) where
     toJSON (Request uri meth heads body) =
-           object ["uri" .= uri, "method" .= meth, "headers" .= (jsonHeads heads), "body" .= body]
+           object ["uri" .= uri, "method" .= meth, "headers" .= (fromHeaders heads), "body" .= body]
 
-jsonHeads :: [Header] -> Value
-jsonHeads hs = object $ map h2js $ foldr h2h [] hs
-               where h2js h    = (T.pack $ show $ fst h) .= snd h
-                     h2h h1 h2 = case lookup (hdrName h1) h2 of
-                                      Just sh -> (hdrName h1, (hdrValue h1):sh):(filter (\n -> fst n /= hdrName h1) h2)
-                                      Nothing -> (hdrName h1, [hdrValue h1]):h2
+fromHeaders :: [Header] -> Value
+fromHeaders hs = object $ map h2js $ foldr h2h [] hs
+    where h2js h    = (T.pack $ show $ fst h) .= snd h
+          h2h h1 h2 = case lookup (hdrName h1) h2 of
+                      Just sh -> (hdrName h1, (hdrValue h1):sh):(filter (\n -> fst n /= hdrName h1) h2)
+                      Nothing -> (hdrName h1, [hdrValue h1]):h2
