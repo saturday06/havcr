@@ -35,11 +35,18 @@ test_parseRequest =
                                "User-Agent: Haskell" ]
 
 test_serializeRequest =
-  let req = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST headers ("HELLO" :: Text)
+  let reqIn = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST headers ("HELLO" :: Text)
       headers = [   Header HdrContentType "application/x-www-form-urlencoded"
                   , Header HdrAccept "*/*"
                   , Header HdrUserAgent "Ruby"
                   , Header HdrUserAgent "Haskell"
                   ]
-  in do yaml <- readFile "test/fixtures/sample02.yml"
-        assertEqual "YAML" (encodeUtf8 $ pack yaml) (encode req)
+      req = fromJust $ decode $ encode reqIn :: Request Text
+  in do assertEqual "URI" (fromJust $ parseURI "http://example.com/result?a=true&b=0") (rqURI req)
+        assertEqual "method" "POST" (show $ rqMethod req)
+        assertEqual "headers" expectedHeaders (Prelude.map (\h -> show (hdrName h) ++ ": " ++ hdrValue h) $ rqHeaders req)
+        assertEqual "body" "HELLO" (rqBody req)
+        where expectedHeaders = [ "Content-Type: application/x-www-form-urlencoded",
+                                  "Accept: */*",
+                                  "User-Agent: Ruby",
+                                  "User-Agent: Haskell" ]
