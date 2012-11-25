@@ -64,6 +64,8 @@ instance ToJSON r => ToJSON (Request r) where
            object ["uri" .= uri, "method" .= meth, "headers" .= (jsonHeads heads), "body" .= body]
 
 jsonHeads :: [Header] -> Value
-jsonHeads (h:hs) = object [hName .= hValue]
-                   where hName = T.pack $ fst $ head $ filter (\hpair -> snd hpair == (hdrName h)) headerMap
-                         hValue = hdrValue h
+jsonHeads hs = object $ map h2js $ foldr h2h [] hs
+               where h2js h    = (T.pack $ show $ fst h) .= snd h
+                     h2h h1 h2 = case lookup (hdrName h1) h2 of
+                                      Just sh -> (hdrName h1, (hdrValue h1):sh):(filter (\n -> fst n /= hdrName h1) h2)
+                                      Nothing -> (hdrName h1, [hdrValue h1]):h2
