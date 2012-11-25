@@ -20,7 +20,7 @@ main =
         defaultMainWithOpts tests ropts
 
 tests = [ testCase "parse Request" test_parseRequest
-          , testCase "serialize Request" test_serializeRequest
+        , testCase "serialize Request" test_serializeRequest
         ]
 
 test_parseRequest =
