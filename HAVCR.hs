@@ -12,6 +12,17 @@ import Data.Maybe (fromJust)
 import Data.HashMap.Strict (toList)
 import qualified Data.Vector as V
 
+
+-- Request (from/to JSON)
+
+instance FromJSON r => FromJSON (Request r) where
+    parseJSON (Object v) = Request <$>
+                           v .: "uri" <*>
+                           v .: "method" <*>
+                           (fmap toHeaders $ v .: "headers") <*>
+                           v .: "body"
+    parseJSON _ = fail "could not parse"
+
 instance FromJSON URI where
     parseJSON (String u) = pure $ fromJust $ parseURI $ T.unpack u
     parseJSON _ = fail "could not parse"
@@ -32,20 +43,16 @@ instance FromJSON RequestMethod where
 --                                  hName = fromJust $ lookup (T.unpack k) headerMap
 --     parseJSON _ = fail "could not parse"
 
-instance FromJSON r => FromJSON (Request r) where
-    parseJSON (Object v) = Request <$>
-                           v .: "uri" <*>
-                           v .: "method" <*>
-                           (fmap toHeaders $ v .: "headers") <*>
-                           v .: "body"
-    parseJSON _ = fail "could not parse"
-
 toHeaders :: Value -> [Header]
 toHeaders (Object hs) = concat $ map hNameToHdrs $ toList hs
     where hNameToHdrs (k, Array vs) = map (hNameToHdr k) (V.toList vs)
           hNameToHdr k (String v) = mkHeader (fromJust $ lookup (T.unpack k) headerMap) (T.unpack v)
 
 --------------------------------------
+
+instance ToJSON r => ToJSON (Request r) where
+    toJSON (Request uri meth heads body) =
+           object ["uri" .= uri, "method" .= meth, "headers" .= (fromHeaders heads), "body" .= body]
 
 instance ToJSON URI where
     toJSON uri = String $ T.pack $ uriToString id uri ""
@@ -59,13 +66,30 @@ instance ToJSON RequestMethod where
 -- instance ToJSON Header where -- TODO
 --     toJSON (Header hName hValue) = fail "not implemented"
 
-instance ToJSON r => ToJSON (Request r) where
-    toJSON (Request uri meth heads body) =
-           object ["uri" .= uri, "method" .= meth, "headers" .= (fromHeaders heads), "body" .= body]
-
 fromHeaders :: [Header] -> Value
 fromHeaders hs = object $ map h2js $ foldr h2h [] hs
     where h2js h    = (T.pack $ show $ fst h) .= snd h
           h2h h1 h2 = case lookup (hdrName h1) h2 of
                       Just sh -> (hdrName h1, (hdrValue h1):sh):(filter (\n -> fst n /= hdrName h1) h2)
                       Nothing -> (hdrName h1, [hdrValue h1]):h2
+
+
+-- Response (from/to JSON)
+
+instance FromJSON r => FromJSON (Response r) where
+    parseJSON (Object v) = Response <$>
+                           (fmap toResponseCode $ v .: "code") <*>
+                           v .: "reason" <*>
+                           (fmap toHeaders $ v .: "headers") <*>
+                           v .: "body"
+    parseJSON _ = fail "could not parse"
+
+toResponseCode (String c) = toTripleInt $ T.unpack c
+                            where toTripleInt (x:y:z:[]) = (read [x], read [y], read [z])
+
+instance ToJSON r => ToJSON (Response r) where
+    toJSON (Response code reason heads body) =
+           object [ "status" .= ["code" .= code, "message" .= reason]
+                  , "headers" .= (fromHeaders heads)
+                  , "body" .= body
+                  ]
