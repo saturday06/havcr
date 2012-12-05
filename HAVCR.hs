@@ -85,7 +85,7 @@ instance FromJSON r => FromJSON (Response r) where
     parseJSON _ = fail "could not parse"
 
 toResponseCode :: Value -> ResponseCode
-toResponseCode (String c) = toTripleInt $ T.unpack c
+toResponseCode (Number c) = toTripleInt $ show c
                             where toTripleInt (x:y:z:[]) = (read [x], read [y], read [z])
                                   toTripleInt _ = error "could not parse"
 

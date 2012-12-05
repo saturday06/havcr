@@ -58,9 +58,9 @@ assertResponseComponents rsp =
      assertEqual "reason" "OK" (rspReason rsp)
      assertEqual "headers" expectedHeaders (headerStrings $ rspHeaders rsp)
      assertEqual "body" "HELLO" (rspBody rsp)
-     where expectedHeaders = [ "Server: Apache"
+     where expectedHeaders = [ "Content-Type: text/plain; charset=iso-8859-2"
+                             , "Server: Apache"
                              , "Content-Length: 12"
-                             , "Content-Type: text/plain; charset=iso-8859-2"
                              ]
 
 headerStrings :: [Header] -> [String]
