@@ -19,7 +19,7 @@ instance FromJSON r => FromJSON (Request r) where
     parseJSON (Object v) = Request <$>
                            v .: "uri" <*>
                            v .: "method" <*>
-                           (fmap toHeaders $ v .: "headers") <*>
+                           (toHeaders <$> v .: "headers") <*>
                            v .: "body"
     parseJSON _ = fail "could not parse"
 
@@ -78,14 +78,16 @@ fromHeaders hs = object $ map h2js $ foldr h2h [] hs
 
 instance FromJSON r => FromJSON (Response r) where
     parseJSON (Object v) = Response <$>
-                           (fmap toResponseCode $ v .: "code") <*>
-                           v .: "reason" <*>
-                           (fmap toHeaders $ v .: "headers") <*>
+                           toResponseCode <$> ((v .: "status") >>= (.: "code")) <*>
+                           ((v .: "status") >>= (.: "message")) <*>
+                           (toHeaders <$> v .: "headers") <*>
                            v .: "body"
     parseJSON _ = fail "could not parse"
 
+toResponseCode :: Value -> ResponseCode
 toResponseCode (String c) = toTripleInt $ T.unpack c
                             where toTripleInt (x:y:z:[]) = (read [x], read [y], read [z])
+                                  toTripleInt _ = error "could not parse"
 
 instance ToJSON r => ToJSON (Response r) where
     toJSON (Response code reason heads body) =
