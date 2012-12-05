@@ -1,0 +1,11 @@
+status: 
+  code: 200
+  message: OK
+headers: 
+  Server: 
+  - Apache
+  Content-Length: 
+  - "12"
+  Content-Type: 
+  - text/plain; charset=iso-8859-2
+body: "HELLO"
