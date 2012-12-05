@@ -9,8 +9,8 @@ and its records are compatible with VCR "cassettes".
 Abstract
 --------
 
-Your networking code should be arranged such as to use Control.Proxy
-(see "Refactoring HTTP Calls" below).
+Your networking code should be arranged such as to use [Control.Proxy][controlproxy]
+(see also "Refactoring HTTP Calls" below).
 When tests are running, HTTP requests are checked against prerecorded cassettes.
 If the recorded request exists, its corresponding recorded response is sent back
 to the application, without hitting the real network. If the recorded request is not
@@ -38,3 +38,4 @@ Thanks
 
 [VCR]: https://github.com/myronmarston/vcr
 [stack1]: http://stackoverflow.com/questions/12424928/haskell-testing-web-apis
+[controlproxy]: http://hackage.haskell.org/packages/archive/pipes/latest/doc/html/Control-Proxy.html
