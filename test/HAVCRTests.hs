@@ -22,6 +22,7 @@ main =
 tests = [ testCase "parse Request" test_parseRequest
         , testCase "serialize Request" test_serializeRequest
         , testCase "parse Response" test_parseResponse
+        , testCase "serialize Response" test_serializeResponse
         ]
 
 test_parseRequest =
@@ -41,6 +42,15 @@ test_serializeRequest =
 test_parseResponse =
   do rsp <- decodeFile "test/fixtures/sample03.yml" :: IO (Maybe (Response Text))
      assertResponseComponents $ fromJust rsp
+
+test_serializeResponse=
+  let resIn = Response (2,0,0) "OK" headers ("HELLO" :: Text)
+      headers = [ Header HdrContentType "text/plain; charset=iso-8859-2"
+                , Header HdrServer "Apache"
+                , Header HdrContentLength "12"
+                ]
+      res = fromJust $ decode $ encode resIn :: Response Text
+  in assertResponseComponents res
 
 assertRequestComponents req =
   do assertEqual "URI" (fromJust $ parseURI "http://example.com/result?a=true&b=0") (rqURI req)

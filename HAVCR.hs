@@ -91,7 +91,10 @@ toResponseCode (Number c) = toTripleInt $ show c
 
 instance ToJSON r => ToJSON (Response r) where
     toJSON (Response code reason heads body) =
-           object [ "status" .= ["code" .= code, "message" .= reason]
+           object [ "status" .= object ["code" .= fromResponseCode code, "message" .= reason]
                   , "headers" .= (fromHeaders heads)
                   , "body" .= body
                   ]
+
+fromResponseCode :: ResponseCode -> Value
+fromResponseCode (x, y, z) = Number $ fromIntegral $ x*100 + y*10 + z
