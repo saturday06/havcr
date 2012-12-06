@@ -111,12 +111,17 @@ instance FromJSON Episode where
     parseJSON (Object v) = Episode <$>
                            v .: "request" <*>
                            v .: "response" <*>
-                           v .: "recorded_at"
+                           (toTime <$> v .: "recorded_at")
+
+toTime :: Value -> UTCTime
+toTime (String t) = fromJust $ parseTime defaultTimeLocale "%a, %e %b %Y %T %Z" $ T.unpack t
 
 instance ToJSON Episode where
     toJSON (Episode req res recordedAt) =
-           object [ "request" .= req, "response" .= res, "recorded_at" .= recordedAt ]
+           object [ "request" .= req, "response" .= res, "recorded_at" .= (fromTime recordedAt) ]
 
+fromTime :: UTCTime -> Value
+fromTime t = String $ T.pack $ formatTime defaultTimeLocale "%a, %e %b %Y %T %Z" t
 
 -- Cassette
 
