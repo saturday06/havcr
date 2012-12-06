@@ -120,7 +120,7 @@ instance ToJSON Episode where
 
 -- Cassette
 
-data Cassette = Cassette [Episode] UTCTime
+data Cassette = Cassette [Episode] T.Text
 
 instance FromJSON Cassette where
     parseJSON (Object v) = Cassette <$>
