@@ -11,6 +11,9 @@ import qualified Data.Text as T
 import Data.Maybe (fromJust)
 import Data.HashMap.Strict (toList)
 import qualified Data.Vector as V
+import Data.Time.Format
+import Data.Time.Clock
+import System.Locale
 
 
 -- Request (from/to JSON)
@@ -98,3 +101,32 @@ instance ToJSON r => ToJSON (Response r) where
 
 fromResponseCode :: ResponseCode -> Value
 fromResponseCode (x, y, z) = Number $ fromIntegral $ x*100 + y*10 + z
+
+
+--- Episode
+
+data Episode = Episode (Request T.Text) (Response T.Text) UTCTime
+
+instance FromJSON Episode where
+    parseJSON (Object v) = Episode <$>
+                           v .: "request" <*>
+                           v .: "response" <*>
+                           v .: "recorded_at"
+
+instance ToJSON Episode where
+    toJSON (Episode req res recordedAt) =
+           object [ "request" .= req, "response" .= res, "recorded_at" .= recordedAt ]
+
+
+-- Cassette
+
+data Cassette = Cassette [Episode] UTCTime
+
+instance FromJSON Cassette where
+    parseJSON (Object v) = Cassette <$>
+                           v .: "http_interactions" <*>
+                           v .: "recorded_with"
+
+instance ToJSON Cassette where
+    toJSON (Cassette eps recordedWith) =
+           object [ "http_interactions" .= eps, "recorded_with" .= recordedWith ]

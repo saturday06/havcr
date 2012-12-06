@@ -61,10 +61,13 @@ library
                  , pipes >= 2.3.0
                  , yaml
                  , unordered-containers
+                 , time
+                 , old-locale
 
 test-suite test-havcr
   type:          exitcode-stdio-1.0
   main-is:       HAVCRTests.hs
+  hs-source-dirs: test
   build-depends: havcr
                  , vector
                  , base
@@ -77,7 +80,8 @@ test-suite test-havcr
                  , pipes >= 2.3.0
                  , yaml
                  , unordered-containers
-  hs-source-dirs: test
+                 , time
+                 , old-locale
 
 source-repository head
   type:     git
