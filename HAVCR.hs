@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module HAVCR where
 
@@ -102,10 +103,14 @@ instance ToJSON r => ToJSON (Response r) where
 fromResponseCode :: ResponseCode -> Value
 fromResponseCode (x, y, z) = Number $ fromIntegral $ x*100 + y*10 + z
 
+deriving instance Eq Header
+deriving instance Eq a => Eq (Request a)
+deriving instance Eq a => Eq (Response a)
 
 --- Episode
 
 data Episode = Episode (Request T.Text) (Response T.Text) UTCTime
+               deriving (Show, Eq)
 
 instance FromJSON Episode where
     parseJSON (Object v) = Episode <$>

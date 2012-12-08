@@ -13,6 +13,9 @@ import Data.Text
 import Data.Text.Encoding
 import Data.Yaml
 import Data.Maybe (fromJust)
+import Data.Time.Format
+import Data.Time.Clock
+import System.Locale
 
 main :: IO ()
 main =
@@ -24,6 +27,7 @@ tests = [ testCase "parse Request" test_parseRequest
         , testCase "parse Response" test_parseResponse
         , testCase "serialize Response" test_serializeResponse
         , testCase "parse Cassette" test_parseCassette
+        , testCase "serialize Cassette" test_serializeCassette
         ]
 
 test_parseRequest =
@@ -57,6 +61,25 @@ test_parseCassette =
   do cas <- decodeFile "test/fixtures/sample01.yml" :: IO (Maybe Cassette)
      assertCassetteComponents $ fromJust cas
 
+test_serializeCassette =
+  let casIn = Cassette episodes "VCR 2.0.0.rc1"
+      episodes = [Episode req res (fromJust $ parseTime defaultTimeLocale "%a, %e %b %Y %T %Z" "Wed, 28 Dec 2011 15:08:44 GMT")]
+      req = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders ("" :: Text)
+      reqHeaders = [ Header HdrContentType "application/x-www-form-urlencoded"
+                   , Header HdrAccept "*/*"
+                   , Header HdrUserAgent "Ruby"
+                   ]
+      res = Response (2,0,0) "OK" resHeaders ("RESULT" :: Text)
+      resHeaders = [ Header HdrDate "Wed, 28 Dec 2011 15:08:44 GMT"
+                   , Header HdrServer "Apache"
+                   , Header HdrContentLength "12"
+                   , Header HdrContentType "text/plain; charset=iso-8859-2"
+                   ]
+      cas = fromJust $ decode $ encode casIn :: Cassette
+  in assertCassetteComponents cas
+
+--
+
 assertRequestComponents req =
   do assertEqual "URI" (fromJust $ parseURI "http://example.com/result?a=true&b=0") (rqURI req)
      assertEqual "method" "POST" (show $ rqMethod req)
@@ -78,9 +101,22 @@ assertResponseComponents rsp =
                              , "Content-Length: 12"
                              ]
 
-assertCassetteComponents cas =
-  do assertEqual "episodes" "TODO" "TODO!"
-     assertEqual "recorder" "TODO" "TODO!"
+assertCassetteComponents (Cassette eps recorder) =
+  do assertEqual "episodes" expectedEpisodes eps
+     assertEqual "recorder" "VCR 2.0.0.rc1" recorder
+     where expectedEpisodes = [ Episode req res recordedAt ]
+           req = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders ("HELLO" :: Text)
+           reqHeaders = [ Header HdrContentType "application/x-www-form-urlencoded"
+                        , Header HdrAccept "*/*"
+                        , Header HdrUserAgent "Ruby"
+                        ]
+           res = Response (2,0,0) "OK" resHeaders ("RESULT" :: Text)
+           resHeaders = [ Header HdrContentType "text/plain; charset=iso-8859-2"
+                        , Header HdrServer "Apache"
+                        , Header HdrDate "Wed, 28 Dec 2011 15:08:44 GMT"
+                        , Header HdrContentLength "12"
+                        ]
+           recordedAt = fromJust $ parseTime defaultTimeLocale "%a, %e %b %Y %T %Z" "Wed, 28 Dec 2011 15:08:44 GMT"
 
 headerStrings :: [Header] -> [String]
 headerStrings = Prelude.map (\h -> show (hdrName h) ++ ": " ++ hdrValue h)
