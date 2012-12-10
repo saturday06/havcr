@@ -51,6 +51,7 @@ toHeaders :: Value -> [Header]
 toHeaders (Object hs) = concat $ map hNameToHdrs $ toList hs
     where hNameToHdrs (k, Array vs) = map (hNameToHdr k) (V.toList vs)
           hNameToHdr k (String v) = mkHeader (fromJust $ lookup (T.unpack k) headerMap) (T.unpack v)
+toHeaders _ = [] -- TODO: Can also be (Array hs), when it is written as "[...]"
 
 --------------------------------------
 
