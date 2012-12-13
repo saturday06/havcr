@@ -64,7 +64,7 @@ test_parseCassette =
 test_serializeCassette =
   let casIn = Cassette episodes "VCR 2.0.0.rc1"
       episodes = [Episode req res (fromJust $ parseTime defaultTimeLocale "%a, %e %b %Y %T %Z" "Wed, 28 Dec 2011 15:08:44 GMT")]
-      req = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders ("" :: Text)
+      req = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders ("HELLO" :: Text)
       reqHeaders = [ Header HdrContentType "application/x-www-form-urlencoded"
                    , Header HdrAccept "*/*"
                    , Header HdrUserAgent "Ruby"
