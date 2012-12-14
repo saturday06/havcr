@@ -3,6 +3,7 @@
 
 module HAVCR where
 
+import Data.Char (toUpper)
 import Data.Yaml
 import Data.Functor
 import Control.Applicative
@@ -32,9 +33,7 @@ instance FromJSON URI where
     parseJSON _ = fail "could not parse"
 
 instance FromJSON RequestMethod where
-    parseJSON (String m) = pure $ Custom (T.unpack $ T.toUpper m) -- TODO
-                                    -- Y U NO EXPORT "rqMethodMap"???
-                                    -- pure $ lookup (T.unpack m) rqMethodMap
+    parseJSON (String m) = pure $ fromJust $ lookup (map toUpper $ T.unpack m) rqMethodMap
     parseJSON _ = fail "could not parse"
 
 -- Simple Header serialization is incompatibe with original VCR files
@@ -63,8 +62,7 @@ instance ToJSON URI where
     toJSON uri = String $ T.pack $ uriToString id uri ""
 
 instance ToJSON RequestMethod where
-    toJSON meth = String $ T.pack $ show meth -- TODO
-                                    -- Y U NO EXPORT "rqMethodMap"???
+    toJSON meth = String $ T.pack $ show meth
 
 -- Simple Header serialization is incompatibe with original VCR files
 --
@@ -141,3 +139,17 @@ instance FromJSON Cassette where
 instance ToJSON Cassette where
     toJSON (Cassette eps recordedWith) =
            object [ "http_interactions" .= eps, "recorded_with" .= recordedWith ]
+
+-------------------- AUXILIARY
+
+-- using a copy of rqMethodMap from Network.HTTP.Base
+-- until it is properly exported from that module
+rqMethodMap :: [(String, RequestMethod)]
+rqMethodMap = [("HEAD",    HEAD),
+	       ("PUT",     PUT),
+	       ("GET",     GET),
+	       ("POST",    POST),
+               ("DELETE",  DELETE),
+	       ("OPTIONS", OPTIONS),
+	       ("TRACE",   TRACE),
+	       ("CONNECT", CONNECT)]
