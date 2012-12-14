@@ -108,7 +108,10 @@ deriving instance Eq a => Eq (Response a)
 
 --- Episode
 
-data Episode = Episode (Request T.Text) (Response T.Text) UTCTime
+data Episode = Episode { epsRequest :: Request T.Text
+                       , epsResponse :: Response T.Text
+                       , epsTime :: UTCTime
+                       }
                deriving (Show, Eq)
 
 instance FromJSON Episode where
@@ -129,7 +132,9 @@ fromTime t = String $ T.pack $ formatTime defaultTimeLocale "%a, %e %b %Y %T %Z"
 
 -- Cassette
 
-data Cassette = Cassette [Episode] T.Text
+data Cassette = Cassette { casEpisodes :: [Episode]
+                         , casRecorder ::T.Text
+                         }
 
 instance FromJSON Cassette where
     parseJSON (Object v) = Cassette <$>
