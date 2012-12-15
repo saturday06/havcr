@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Data.Yaml.HAVCRTests (tests) where
 
 import Data.Yaml.HAVCR

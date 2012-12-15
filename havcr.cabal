@@ -63,6 +63,7 @@ library
                  , unordered-containers
                  , time
                  , old-locale
+  extensions: OverloadedStrings, StandaloneDeriving
 
 test-suite test-havcr
   type:          exitcode-stdio-1.0
@@ -82,6 +83,7 @@ test-suite test-havcr
                  , unordered-containers
                  , time
                  , old-locale
+  extensions: OverloadedStrings
 
 source-repository head
   type:     git

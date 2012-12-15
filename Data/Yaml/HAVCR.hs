@@ -1,21 +1,18 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE StandaloneDeriving #-}
-
 module Data.Yaml.HAVCR where
 
 import Data.Char (toUpper)
 import Data.Yaml
-import Data.Functor
-import Control.Applicative
+import Data.Functor ((<$>))
+import Control.Applicative (pure, (<*>))
 import Network.HTTP
-import Network.URI
-import qualified Data.Text as T
+import Network.URI (URI, parseURI, uriToString)
+import qualified Data.Text as T (Text, pack, unpack)
 import Data.Maybe (fromJust)
 import Data.HashMap.Strict (toList)
-import qualified Data.Vector as V
-import Data.Time.Format
-import Data.Time.Clock
-import System.Locale
+import qualified Data.Vector as V (toList)
+import Data.Time.Format (parseTime, formatTime)
+import Data.Time.Clock (UTCTime)
+import System.Locale (defaultTimeLocale)
 
 
 -- Request (from/to JSON)
