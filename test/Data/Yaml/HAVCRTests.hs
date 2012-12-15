@@ -1,26 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Data.Yaml.HAVCRTests (tests) where
 
-import Test.HUnit
-import Test.Framework
-import Test.Framework.Providers.HUnit
+import Data.Yaml.HAVCR
 
-import HAVCR
+import Test.HUnit (assertEqual)
+import Test.Framework.Providers.HUnit (testCase)
+
 import Network.HTTP
 import Network.URI
 import Data.Text
-import Data.Text.Encoding
-import Data.Yaml
+import Data.Yaml (decode, encode, decodeFile)
 import Data.Maybe (fromJust)
-import Data.Time.Format
-import Data.Time.Clock
-import System.Locale
-
-main :: IO ()
-main =
-     do ropts <- interpretArgsOrExit []
-        defaultMainWithOpts tests ropts
+import Data.Time.Format (parseTime)
+import System.Locale (defaultTimeLocale)
 
 tests = [ testCase "parse Request" test_parseRequest
         , testCase "serialize Request" test_serializeRequest

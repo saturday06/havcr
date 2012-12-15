@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module HAVCR where
+module Data.Yaml.HAVCR where
 
 import Data.Char (toUpper)
 import Data.Yaml

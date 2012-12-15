@@ -47,7 +47,7 @@ cabal-version:       >= 1.9.2
 
 library
   -- Modules exported by the library.
-  exposed-modules: HAVCR
+  exposed-modules: Data.Yaml.HAVCR
   
   -- Modules included in this library but not exported.
   -- other-modules:       
@@ -66,8 +66,8 @@ library
 
 test-suite test-havcr
   type:          exitcode-stdio-1.0
-  main-is:       HAVCRTests.hs
-  hs-source-dirs: test
+  main-is:       allTests.hs
+  hs-source-dirs: test, test/Data/Yaml, test/Network
   build-depends: havcr
                  , vector
                  , base
