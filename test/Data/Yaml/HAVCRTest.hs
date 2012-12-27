@@ -1,4 +1,4 @@
-module Data.Yaml.HAVCRTests (tests) where
+module Data.Yaml.HAVCRTest (tests) where
 
 import Data.Yaml.HAVCR
 

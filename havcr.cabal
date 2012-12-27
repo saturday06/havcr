@@ -47,10 +47,11 @@ cabal-version:       >= 1.9.2
 
 library
   -- Modules exported by the library.
-  exposed-modules: Data.Yaml.HAVCR
+  exposed-modules: Data.Yaml.HAVCR,
+                   Network.HAVCR.Proxy
   
   -- Modules included in this library but not exported.
-  other-modules: Network.HAVCR.Proxy
+  -- other-modules: Network.HAVCR.Proxy
   
   -- Other library packages from which modules are imported.
   build-depends: base

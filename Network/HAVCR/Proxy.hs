@@ -2,8 +2,7 @@
 
 -- HAVCR module providing a "simulated server" for testing
 module Network.HAVCR.Proxy (
-  mockedServer,
-  simulatedHTTP
+  mockedServer
 ) where
 
 import Control.Proxy
