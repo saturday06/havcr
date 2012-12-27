@@ -50,7 +50,7 @@ library
   exposed-modules: Data.Yaml.HAVCR
   
   -- Modules included in this library but not exported.
-  -- other-modules:       
+  other-modules: Network.HAVCR.Proxy
   
   -- Other library packages from which modules are imported.
   build-depends: base
@@ -58,7 +58,7 @@ library
                  , text
                  , network
                  , HTTP
-                 , pipes >= 2.3.0
+                 , pipes >= 3.0.0
                  , yaml
                  , unordered-containers
                  , time
