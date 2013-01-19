@@ -84,6 +84,7 @@ test-suite test-havcr
                  , unordered-containers
                  , time
                  , old-locale
+                 , transformers
   extensions: OverloadedStrings
 
 source-repository head
