@@ -16,8 +16,8 @@ import Data.String (IsString)
 mockedServer :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
                 Request ty -> Server p (Request ty) (Result (Response ty)) IO r
 mockedServer = runIdentityK $ foreverK $ \req ->
-    do result <- lift $ simpleHTTP req
-    -- do result <- lift $ simulatedHTTP req
+    -- do result <- lift $ simpleHTTP req
+    do result <- lift $ simulatedHTTP req
        respond result
 
 simulatedHTTP :: forall ty. (HStream ty, IsString ty) =>

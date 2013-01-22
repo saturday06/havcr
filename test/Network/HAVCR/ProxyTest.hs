@@ -23,14 +23,14 @@ tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
 
 testClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
-              () -> Client p (Request String) (Result (Response ty)) IO (Response String)
-testClient () = runIdentityP $ forever $ do
+              () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
+testClient () = runIdentityP $ do
     request req
     where req = Request (fromJust $ parseURI "http://www.example.com") GET [] "test" :: Request String
 
-testProxy :: Proxy p => () -> Session p IO (Response String)
+testProxy :: Proxy p => () -> Session p IO (Result (Response String))
 testProxy = mockedServer >-> testClient
 
-test_SimpleMockedResponse = actualResponse >>= assertEqual "response" expectedResponse
+test_SimpleMockedResponse = actualResponse >>= assertEqual "response" (Right $ expectedResponse)
     where expectedResponse = Response (2,0,0) "OK" [] "hello" :: Response String
-          actualResponse = runProxy testProxy :: IO (Response String)
+          actualResponse = runProxy testProxy :: IO (Result (Response String))
