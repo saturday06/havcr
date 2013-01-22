@@ -19,21 +19,18 @@ import Data.Text
 import Data.Maybe (fromJust)
 import Data.String (IsString)
 
-tests = [
-  -- test_SimpleMockedResponse
+tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
 
 testClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
-              () -> Client p (Request ty) (Result (Response ty)) IO ()
+              () -> Client p (Request String) (Result (Response ty)) IO (Response String)
 testClient () = runIdentityP $ forever $ do
     request req
-    where req = Request (fromJust $ parseURI "http://www.example.com") GET [] "test" :: Request ty
+    where req = Request (fromJust $ parseURI "http://www.example.com") GET [] "test" :: Request String
 
-testProxy :: Proxy p => () -> Session p IO ()
+testProxy :: Proxy p => () -> Session p IO (Response String)
 testProxy = mockedServer >-> testClient
 
-test_SimpleMockedResponse :: Assertion
-test_SimpleMockedResponse = do
-    actualResponse >>= assertEqual "response" expectedResponse
-    where expectedResponse = Response (2,0,0) "OK" [] "hello" :: Response Text
-          actualResponse = runProxy testProxy
+test_SimpleMockedResponse = actualResponse >>= assertEqual "response" expectedResponse
+    where expectedResponse = Response (2,0,0) "OK" [] "hello" :: Response String
+          actualResponse = runProxy testProxy :: IO (Response String)
