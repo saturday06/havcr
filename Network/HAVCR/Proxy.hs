@@ -6,20 +6,36 @@ module Network.HAVCR.Proxy (
 ) where
 
 import Control.Proxy
-import Control.Monad
 import Network.HTTP
 import Network.Stream
-import Network.BufferType
-import Data.Text
 import Data.String (IsString)
+import Data.List (find)
+import Data.Maybe (fromJust)
 
-mockedServer :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
+import Data.Yaml
+import Data.Yaml.HAVCR
+
+mockedServer :: forall ty p r. (HStream ty, Eq ty, FromJSON ty, IsString ty, Proxy p) =>
                 Request ty -> Server p (Request ty) (Result (Response ty)) IO r
 mockedServer = runIdentityK $ foreverK $ \req ->
-    -- do result <- lift $ simpleHTTP req
-    do result <- lift $ simulatedHTTP req
+    do cas <- lift $ decodeFile "cassette.yml"
+       result <- lift $ simulatedHTTP req (fromJust cas)
        respond result
 
-simulatedHTTP :: forall ty. (HStream ty, IsString ty) =>
-                 Request ty -> IO (Result (Response ty))
-simulatedHTTP req = return $ Right $ Response (2,0,0) "OK" [] ("hello" :: ty)
+simulatedHTTP :: forall ty. (HStream ty, Eq ty, FromJSON ty, IsString ty) =>
+                 Request ty -> Cassette ty -> IO (Result (Response ty))
+simulatedHTTP req cas = do
+  case findRecordedResponse req cas of
+    Just r -> return $ Right r
+    Nothing -> getRealResponse req
+
+findRecordedResponse :: forall ty. (FromJSON ty, Eq ty) =>
+                        Request ty -> Cassette ty -> Maybe (Response ty)
+findRecordedResponse req cas =
+  case find (\es -> req == epsRequest es) (episodes cas) of
+    Just ep -> Just (epsResponse ep)
+    Nothing -> Nothing
+
+getRealResponse :: HStream ty =>
+                   Request ty -> IO (Result (Response ty))
+getRealResponse req = simpleHTTP req -- TODO: and record it to the cassette
