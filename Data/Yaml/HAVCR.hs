@@ -105,13 +105,13 @@ deriving instance Eq a => Eq (Response a)
 
 --- Episode
 
-data Episode = Episode { epsRequest :: Request T.Text
-                       , epsResponse :: Response T.Text
-                       , epsTime :: UTCTime
-                       }
+data Episode a = Episode { epsRequest :: Request a
+                         , epsResponse :: Response a
+                         , epsTime :: UTCTime
+                         }
                deriving (Show, Eq)
 
-instance FromJSON Episode where
+instance FromJSON a => FromJSON (Episode a) where
     parseJSON (Object v) = Episode <$>
                            v .: "request" <*>
                            v .: "response" <*>
@@ -120,7 +120,7 @@ instance FromJSON Episode where
 toTime :: Value -> UTCTime
 toTime (String t) = fromJust $ parseTime defaultTimeLocale "%a, %e %b %Y %T %Z" $ T.unpack t
 
-instance ToJSON Episode where
+instance ToJSON a => ToJSON (Episode a) where
     toJSON (Episode req res recordedAt) =
            object [ "request" .= req, "response" .= res, "recorded_at" .= (fromTime recordedAt) ]
 
@@ -129,16 +129,16 @@ fromTime t = String $ T.pack $ formatTime defaultTimeLocale "%a, %e %b %Y %T %Z"
 
 -- Cassette
 
-data Cassette = Cassette { casEpisodes :: [Episode]
-                         , casRecorder ::T.Text
-                         }
+data Cassette a = Cassette { episodes :: [Episode a]
+                           , recorder :: T.Text
+                           }
 
-instance FromJSON Cassette where
+instance FromJSON a => FromJSON (Cassette a) where
     parseJSON (Object v) = Cassette <$>
                            v .: "http_interactions" <*>
                            v .: "recorded_with"
 
-instance ToJSON Cassette where
+instance ToJSON a => ToJSON (Cassette a) where
     toJSON (Cassette eps recordedWith) =
            object [ "http_interactions" .= eps, "recorded_with" .= recordedWith ]
 

@@ -49,7 +49,7 @@ test_serializeResponse =
   in assertResponseComponents res
 
 test_parseCassette =
-  do cas <- decodeFile "test/fixtures/sample01.yml" :: IO (Maybe Cassette)
+  do cas <- decodeFile "test/fixtures/sample01.yml" :: IO (Maybe (Cassette Text))
      assertCassetteComponents $ fromJust cas
 
 test_serializeCassette =
@@ -66,7 +66,7 @@ test_serializeCassette =
                    , Header HdrContentLength "12"
                    , Header HdrContentType "text/plain; charset=iso-8859-2"
                    ]
-      cas = fromJust $ decode $ encode casIn :: Cassette
+      cas = fromJust $ decode $ encode casIn :: Cassette Text
   in assertCassetteComponents cas
 
 --
