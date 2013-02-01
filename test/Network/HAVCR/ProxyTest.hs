@@ -18,6 +18,7 @@ import Network.BufferType
 import Data.Text
 import Data.Maybe (fromJust)
 import Data.String (IsString)
+import Data.Yaml (decodeFile)
 
 tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
@@ -28,9 +29,11 @@ testClient () = runIdentityP $ do
     request req
     where req = Request (fromJust $ parseURI "http://www.example.com") GET [] "test" :: Request String
 
-testProxy :: Proxy p => () -> Session p IO (Result (Response String))
-testProxy = mockedServer >-> testClient
+testProxy :: Proxy p => Cassette String -> () -> Session p IO (Result (Response String))
+testProxy cas = mockedServer cas >-> testClient
 
-test_SimpleMockedResponse = actualResponse >>= assertEqual "response" (Right $ expectedResponse)
+test_SimpleMockedResponse = do
+  cas <- decodeFile "cassette.yml"
+  actualResponse <- runProxy $ testProxy $ fromJust cas :: IO (Result (Response String))
+  assertEqual "response" (Right $ expectedResponse) actualResponse
     where expectedResponse = Response (2,0,0) "OK" [] "hello" :: Response String
-          actualResponse = runProxy testProxy :: IO (Result (Response String))

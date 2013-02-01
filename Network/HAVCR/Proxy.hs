@@ -16,11 +16,10 @@ import Data.Yaml
 import Data.Yaml.HAVCR
 
 mockedServer :: forall ty p r. (HStream ty, Eq ty, FromJSON ty, IsString ty, Proxy p) =>
-                Request ty -> Server p (Request ty) (Result (Response ty)) IO r
-mockedServer = runIdentityK $ foreverK $ \req ->
-    do cas <- lift $ decodeFile "cassette.yml"
-       result <- lift $ simulatedHTTP req (fromJust cas)
-       respond result
+                Cassette ty -> Request ty -> Server p (Request ty) (Result (Response ty)) IO r
+mockedServer cas = runIdentityK $ foreverK $ \req ->
+  do result <- lift $ simulatedHTTP req cas
+     respond result
 
 simulatedHTTP :: forall ty. (HStream ty, Eq ty, FromJSON ty, IsString ty) =>
                  Request ty -> Cassette ty -> IO (Result (Response ty))
