@@ -30,10 +30,8 @@ simulatedHTTP req cas = do
 
 findRecordedResponse :: forall ty. (FromJSON ty, Eq ty) =>
                         Request ty -> Cassette ty -> Maybe (Response ty)
-findRecordedResponse req cas =
-  case find (\es -> req == epsRequest es) (episodes cas) of
-    Just ep -> Just (epsResponse ep)
-    Nothing -> Nothing
+findRecordedResponse req cas = fmap epsResponse findResponse
+  where findResponse = find (\es -> req == epsRequest es) (episodes cas)
 
 getRealResponse :: HStream ty =>
                    Request ty -> IO (Result (Response ty))
