@@ -37,12 +37,11 @@ testClient () = runIdentityP $ do
             ]
           testBody = "HELLO"
 
-testProxy :: Proxy p => Cassette String -> () -> Session p IO (Result (Response String))
-testProxy cas = mockedServer cas >-> testClient
+testProxy :: Proxy p => FilePath -> () -> Session p IO (Result (Response String))
+testProxy fname = mockedServer fname >-> testClient
 
 test_SimpleMockedResponse = do
-  cas <- decodeFile "test/fixtures/sample01.yml"
-  actualResponse <- runProxy $ testProxy $ fromJust cas :: IO (Result (Response String))
+  actualResponse <- runProxy $ testProxy "test/fixtures/sample-rw.yml"
   assertEqual "response" (Right $ expectedResponse) actualResponse
     where expectedResponse = Response (2,0,0) "OK" headers "RESULT" :: Response String
           headers = [
