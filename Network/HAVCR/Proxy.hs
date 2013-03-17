@@ -41,7 +41,7 @@ getRealResponse :: (HStream ty, ToJSON ty) =>
 getRealResponse req eps fname = do
   res <- simpleHTTP req
   case res of
-    Left r -> undefined -- TODO
+    Left r -> fail $ "Connection error: " ++ (show r)
     Right r -> do
       t <- getCurrentTime
       saveEpisodes (eps ++ [Episode req r t]) fname
