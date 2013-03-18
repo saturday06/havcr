@@ -21,7 +21,7 @@ import Data.String (IsString)
 tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
 
-testClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
+testClient :: forall ty p . (HStream ty, IsString ty, Proxy p) =>
               Request String -> () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
 testClient req () = runIdentityP $ do request req
 
