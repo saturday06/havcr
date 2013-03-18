@@ -22,8 +22,11 @@ tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
 
 testClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
-              () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
-testClient () = runIdentityP $ do request req
+              Request String -> () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
+testClient req () = runIdentityP $ do request req
+
+testProxy :: Proxy p => FilePath -> () -> Session p IO (Result (Response String))
+testProxy fname = mockedServer fname >-> testClient req
     where req = Request (fromJust $ parseURI testURI) testMethod testHeaders testBody :: Request String
           testURI = "http://example.com/result?a=true&b=0"
           testMethod = POST
@@ -33,9 +36,6 @@ testClient () = runIdentityP $ do request req
             Header HdrUserAgent "Ruby"
             ]
           testBody = "HELLO"
-
-testProxy :: Proxy p => FilePath -> () -> Session p IO (Result (Response String))
-testProxy fname = mockedServer fname >-> testClient
 
 test_SimpleMockedResponse = do
   actualResponse <- runProxy $ testProxy "test/fixtures/sample-rw.yml"
