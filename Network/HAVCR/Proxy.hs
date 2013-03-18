@@ -29,7 +29,7 @@ simulatedHTTP req fname = do
   eps <- return $ episodes $ fromJust cas
   case findRecordedResponse req eps of
     Just r -> return $ Right r
-    Nothing -> getRealResponse req (eps :: ToJSON ty => [Episode ty]) fname
+    Nothing -> getRealResponse req eps fname
 
 findRecordedResponse :: Eq ty =>
                         Request ty -> [Episode ty] -> Maybe (Response ty)
