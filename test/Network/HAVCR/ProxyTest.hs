@@ -14,19 +14,16 @@ import Control.Monad
 import Network.HTTP
 import Network.URI
 import Network.Stream
-import Network.BufferType
 import Data.Text
 import Data.Maybe (fromJust)
 import Data.String (IsString)
-import Data.Yaml (decodeFile)
 
 tests = [ testCase "mocked response" test_SimpleMockedResponse
         ]
 
 testClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
               () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
-testClient () = runIdentityP $ do
-    request req
+testClient () = runIdentityP $ do request req
     where req = Request (fromJust $ parseURI testURI) testMethod testHeaders testBody :: Request String
           testURI = "http://example.com/result?a=true&b=0"
           testMethod = POST
