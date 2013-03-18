@@ -2,6 +2,7 @@ module Data.Yaml.HAVCR where
 
 import Data.Char (toUpper)
 import Data.Yaml
+import Data.List (sort)
 import Data.Functor ((<$>))
 import Control.Applicative (pure, (<*>))
 import Network.HTTP
@@ -61,7 +62,7 @@ instance ToJSON URI where
 instance ToJSON RequestMethod where
     toJSON meth = String $ T.pack $ show meth
 
--- Simple Header serialization is incompatibe with original VCR files
+-- Simple Header serialization is incompatible with original VCR files
 --
 -- instance ToJSON Header where -- TODO
 --     toJSON (Header hName hValue) = fail "not implemented"
@@ -100,8 +101,18 @@ fromResponseCode :: ResponseCode -> Value
 fromResponseCode (x, y, z) = Number $ fromIntegral $ x*100 + y*10 + z
 
 deriving instance Eq Header
-deriving instance Eq a => Eq (Request a)
-deriving instance Eq a => Eq (Response a)
+deriving instance Ord Header
+deriving instance Ord HeaderName
+instance Eq a => Eq (Request a) where
+    r1 == r2 = rqURI r1 == rqURI r2 &&
+               rqMethod r1 == rqMethod r2 &&
+               (sort $ rqHeaders r1) == (sort $ rqHeaders r2) &&
+               rqBody r1 == rqBody r2
+instance Eq a => Eq (Response a) where
+    r1 == r2 = rspCode r1 == rspCode r2 &&
+               rspReason r1 == rspReason r2 &&
+               (sort $ rspHeaders r1) == (sort $ rspHeaders r2) &&
+               rspBody r1 == rspBody r2
 
 --- Episode
 

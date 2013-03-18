@@ -19,6 +19,7 @@ tests = [ testCase "parse Request" test_parseRequest
         , testCase "serialize Response" test_serializeResponse
         , testCase "parse Cassette" test_parseCassette
         , testCase "serialize Cassette" test_serializeCassette
+        , testCase "compare Responses" test_compareResponses
         ]
 
 test_parseRequest =
@@ -68,6 +69,34 @@ test_serializeCassette =
                    ]
       cas = fromJust $ decode $ encode casIn :: Cassette Text
   in assertCassetteComponents cas
+
+test_compareResponses =
+  let res1 = Response (2,0,0) "OK" resHeaders1 ("RESULT" :: Text)
+      resHeaders1 = [ Header HdrDate "Wed, 28 Dec 2011 15:08:44 GMT"
+                    , Header HdrServer "Apache"
+                    , Header HdrContentLength "12"
+                    , Header HdrContentType "text/plain; charset=iso-8859-2"
+                    ]
+      res2 = Response (2,0,0) "OK" resHeaders2 ("RESULT" :: Text)
+      resHeaders2 = [ Header HdrDate "Wed, 28 Dec 2011 15:08:44 GMT"
+                    , Header HdrContentLength "12"
+                    , Header HdrServer "Apache"
+                    , Header HdrContentType "text/plain; charset=iso-8859-2"
+                    ]
+  in assertEqual "responses" res1 res2
+  
+test_compareRequests =
+  let req1 = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders1 ("HELLO" :: Text)
+      reqHeaders1 = [ Header HdrContentType "application/x-www-form-urlencoded"
+                    , Header HdrAccept "*/*"
+                    , Header HdrUserAgent "Ruby"
+                    ]
+      req2 = Request (fromJust $ parseURI "http://example.com/result?a=true&b=0") POST reqHeaders2 ("HELLO" :: Text)
+      reqHeaders2 = [ Header HdrContentType "application/x-www-form-urlencoded"
+                    , Header HdrUserAgent "Ruby"
+                    , Header HdrAccept "*/*"
+                    ]
+  in assertEqual "responses" req1 req2
 
 --
 
