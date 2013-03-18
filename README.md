@@ -21,7 +21,26 @@ recorded for the future reuse.
 Refactoring HTTP Calls
 ----------------------
 
-TODO (see [Haskell: Testing web APIs][stack1]).
+(Copied from [Network.HTTP To Control.Proxy Who Am The Only One][htohe]).
+
+Provided that you use `simpleHTTP` function from `Network.HTTP` library,
+here’s what you need to do to make it “testable”:
+
+Your original function:
+
+    getResponse :: HStream ty => Request ty -> IO (Result (Response ty))
+    getResponse req = simpleHTTP req
+
+should be modified to send requests via a Proxy:
+
+    getResponse :: Proxy p => FilePath -> () -> Session p IO (Result (Response String))
+    getResponse req = mockedServer "cassette.yml" >-> httpClient req
+
+    httpClient :: forall ty p r. (HStream ty, IsString ty, Proxy p) =>
+                  Request String -> () -> Client p (Request String) (Result (Response ty)) IO (Result (Response ty))
+    httpClient req () = runIdentityP $ do request req
+
+Don’t forget to import `Network.HAVCR` which provides `mockedServer`.
 
 
 Authors and Contributors
@@ -37,5 +56,5 @@ Thanks
 
 
 [VCR]: https://github.com/myronmarston/vcr
-[stack1]: http://stackoverflow.com/questions/12424928/haskell-testing-web-apis
 [controlproxy]: http://hackage.haskell.org/packages/archive/pipes/latest/doc/html/Control-Proxy.html
+[htohe]: http://sophiornithidae.tumblr.com/post/45659241983/network-http-to-control-proxy-who-am-the-only-one
